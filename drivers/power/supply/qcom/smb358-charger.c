@@ -183,6 +183,8 @@
 #define SMB358_DEFAULT_BATT_CAPACITY	10
 #define SMB358_BATT_GOOD_THRE_2P5	0x1
 
+int rolex_smb358 = 1;
+
 extern struct device_node *of_batterydata_get_best_profile(
 		const struct device_node *batterydata_container_node,
 		const char *psy_name,  const char  *batt_type);
@@ -1761,7 +1763,36 @@ static void smb358_external_power_changed(struct power_supply *psy)
 		dev_err(chip->dev,
 			"Couldn't read USB current_max property, rc=%d\n", rc);
 	else
-		current_limit = prop.intval / 1000;
+	#ifdef CONFIG_SMB358_CHARGER
+        {
+           if (!((prop.intval / 1000) == 0))
+           {
+	      if (rolex_smb358 == 1)
+	      {
+		 // If Current (mA) is Equal to 500 mA, then USB is Connected.
+                 if ((prop.intval / 1000) == 500)
+		 {
+		    // Raise USB-Charging Current (mA) to 1000 mA (Maximum Supported).
+                    pr_info("Using USB Current (mA) %d", 1000);
+                    current_limit = 1000;
+                 }
+                 else
+	         {
+                     pr_info("Using AC Charge Current (mA) %d", 1250);
+                     current_limit = 1250;
+                 }
+              }
+              else
+		  // If AC Charge is Disabled, Restore Default Value of Current (mA).
+                  current_limit = prop.intval / 1000;
+           }
+	   else
+	       current_limit = 0;
+	}
+	#else
+	   // If AC Charge is Not Compiled, Leave Current (mA) Value Untouched.
+	   current_limit = prop.intval / 1000;
+	#endif
 
 
 	smb358_enable_volatile_writes(chip);
