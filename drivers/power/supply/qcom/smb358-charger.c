@@ -1763,7 +1763,6 @@ static void smb358_external_power_changed(struct power_supply *psy)
 		dev_err(chip->dev,
 			"Couldn't read USB current_max property, rc=%d\n", rc);
 	else
-	#ifdef CONFIG_SMB358_CHARGER
         {
            if (!((prop.intval / 1000) == 0))
            {
@@ -1789,10 +1788,6 @@ static void smb358_external_power_changed(struct power_supply *psy)
 	   else
 	       current_limit = 0;
 	}
-	#else
-	   // If AC Charge is Not Compiled, Leave Current (mA) Value Untouched.
-	   current_limit = prop.intval / 1000;
-	#endif
 
 
 	smb358_enable_volatile_writes(chip);
