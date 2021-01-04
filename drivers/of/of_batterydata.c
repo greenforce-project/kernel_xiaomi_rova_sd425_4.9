@@ -315,9 +315,7 @@ static int64_t of_batterydata_convert_battery_id_kohm(int batt_id_uv,
 	return resistor_value_kohm;
 }
 
-#ifdef CONFIG_MACH_XIAOMI_ROLEX
 extern int battid_resister;
-#endif
 
 int battery_type_id = 0 ;
 
@@ -333,10 +331,8 @@ struct device_node *of_batterydata_get_best_profile(
 	bool in_range = false;
 	bool default_id = false;
 
-#ifdef CONFIG_MACH_XIAOMI_ROLEX
 	batt_id_kohm = battid_resister;
 	pr_err("C3N batt_id = %d\n", batt_id_kohm);
-#endif
 
 	/* read battery id range percentage for best profile */
 	rc = of_property_read_u32(batterydata_container_node,
@@ -408,13 +404,11 @@ struct device_node *of_batterydata_get_best_profile(
 	else
 		pr_info("%s found\n", best_node->name);
 
-#ifdef CONFIG_MACH_XIAOMI_ROLEX
 	if (strcmp(battery_type, "wingtech-feimaotui-4v4-3030mah") == 0) {
 			 battery_type_id = 1;
 	} else if (strcmp(battery_type, "wingtech-xingwangda-4v4-3030mah") == 0) {
 			 battery_type_id = 2;
 	}
-#endif
 
 	return best_node;
 }
